@@ -67,9 +67,9 @@ export default function HomePage() {
     hladno: [
       { name: "Voda Vivia", price: "2.00 BAM", description: "Kom" },
       { name: "Kisela Vitinka", price: "2.00 BAM", description: "0.25l" },
-      { name: "Kisela narandža", price: "2.50 BAM", description: "0.25l" },
-      { name: "Kisela kruška", price: "2.50 BAM", description: "0.25l" },
-      { name: "Kisela limeta", price: "2.50 BAM", description: "0.25l" },
+      { name: "Exotic narandža", price: "2.50 BAM", description: "0.25l" },
+      { name: "Exotic kruška", price: "2.50 BAM", description: "0.25l" },
+      { name: "Exotic limeta", price: "2.50 BAM", description: "0.25l" },
       { name: "Vitaminka jabuka", price: "3.00 BAM", description: "0.20l" },
       { name: "Vitaminka borovnica", price: "3.00 BAM", description: "0.20l" },
       { name: "Vitaminka višnja", price: "3.00 BAM", description: "0.20l" },
