@@ -4,7 +4,7 @@
 
 Reset Coffee is a modern web application built for cafés and bars that allows customers to view the menu by scanning a QR code. The menu opens directly in the browser, providing a fast, clean, and simple alternative to traditional physical menus.
 
-##Features
+## Features
 
 - **QR Code Access**  
   Customers scan a code to open the menu instantly—no app downloads required.
@@ -21,7 +21,7 @@ Reset Coffee is a modern web application built for cafés and bars that allows c
 - **Clean UI**  
   Intuitive and user-friendly interface designed for easy browsing.
 
-##Live Demo & QR Code
+## Live Demo & QR Code
 
 The application is deployed and ready to use. Scan the QR code below with your phone's camera or click the link to view the live menu.
 
@@ -32,7 +32,7 @@ https://ivanpavlovic-web.github.io/reset-qr/
 
 Scan this code to open the menu.
 
-##Screenshots
+## Screenshots
 
 ### Main Menu View
 
@@ -46,14 +46,14 @@ The main menu interface, showcasing different drink categories.
 
 The responsive design ensures a perfect experience on any device.
 
-##Tech Stack
+## Tech Stack
 
 - **React** – Building the interactive user interface  
 - **Vite** – Fast build tool and development server  
 - **JavaScript (ES6+)** – Core programming language  
 - **CSS** – Styling and responsive layout  
 
-##Getting Started
+## Getting Started
 
 ### Prerequisites
 
