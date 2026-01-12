@@ -63,7 +63,38 @@ The responsive design ensures a perfect experience on any device.
 ### Installation
 
 Clone the repository:
-
 ```bash
 git clone https://github.com/IvanPavlovic-web/reset-qr.git
 cd reset-qr
+```
+Install dependencies:
+```bash
+npm install
+```
+Start the development server:
+```bash
+npm run dev
+```
+Open your browser and navigate to http://localhost:5173
+
+## Project Structure
+```bash
+reset-qr/
+├── src/
+│   ├── components/
+│   │   ├── MenuCategory.jsx
+│   │   ├── MenuItem.jsx
+│   │   ├── Header.jsx
+│   │   └── Footer.jsx
+│   ├── data/
+│   │   └── menuItems.js
+│   ├── styles/
+│   │   └── App.css
+│   ├── App.jsx
+│   └── main.jsx
+├── public/
+│   └── index.html
+├── package.json
+├── vite.config.js
+└── README.md
+```
