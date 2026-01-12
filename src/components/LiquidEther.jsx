@@ -30,6 +30,10 @@ export default function LiquidEther({
   const intersectionObserverRef = useRef(null);
   const isVisibleRef = useRef(true);
   const resizeRafRef = useRef(null);
+  
+  // Dodajemo ref za pracenje touch interakcije
+  const isTouchingRef = useRef(false);
+  const lastTouchRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -153,10 +157,10 @@ export default function LiquidEther({
         this.listenerTarget = defaultView;
         this.listenerTarget.addEventListener("mousemove", this._onMouseMove);
         this.listenerTarget.addEventListener("touchstart", this._onTouchStart, {
-          passive: true,
+          passive: false, // Promenjeno iz true u false za bolju kontrolu
         });
         this.listenerTarget.addEventListener("touchmove", this._onTouchMove, {
-          passive: true,
+          passive: false, // Promenjeno iz true u false
         });
         this.listenerTarget.addEventListener("touchend", this._onTouchEnd);
         if (this.docTarget) {
@@ -242,21 +246,31 @@ export default function LiquidEther({
         this.hasUserControl = true;
       }
       onDocumentTouchStart(event) {
+        event.preventDefault(); // Dodato: sprečava scroll
         if (event.touches.length !== 1) return;
         const t = event.touches[0];
+        isTouchingRef.current = true;
+        lastTouchRef.current = { x: t.clientX, y: t.clientY };
+        
         if (!this.updateHoverState(t.clientX, t.clientY)) return;
         if (this.onInteract) this.onInteract();
         this.setCoords(t.clientX, t.clientY);
         this.hasUserControl = true;
       }
       onDocumentTouchMove(event) {
+        event.preventDefault(); // Dodato: sprečava scroll
         if (event.touches.length !== 1) return;
         const t = event.touches[0];
+        isTouchingRef.current = true;
+        lastTouchRef.current = { x: t.clientX, y: t.clientY };
+        
         if (!this.updateHoverState(t.clientX, t.clientY)) return;
         if (this.onInteract) this.onInteract();
         this.setCoords(t.clientX, t.clientY);
       }
-      onTouchEnd() {
+      onTouchEnd(event) {
+        event.preventDefault();
+        isTouchingRef.current = false;
         this.isHoverInside = false;
       }
       onDocumentLeave() {
@@ -1061,6 +1075,12 @@ void main(){
     const container = mountRef.current;
     container.style.position = container.style.position || "relative";
     container.style.overflow = container.style.overflow || "hidden";
+
+    // Dodajemo CSS klase za touch uredjaje
+    container.classList.add("liquid-background");
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+      container.classList.add("is-mobile");
+    }
 
     const webgl = new WebGLManager({
       $wrapper: container,
