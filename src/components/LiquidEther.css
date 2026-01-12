@@ -1,52 +1,69 @@
-
+/* LiquidEther.css */
 .liquid-ether-container {
   position: fixed !important;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 0 !important;
   pointer-events: auto !important;
   touch-action: none !important;
-}
-
-.liquid-ether-container.is-mobile {
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  overflow: hidden !important;
 }
 
 .liquid-ether-container canvas {
-  display: block;
+  display: block !important;
   width: 100% !important;
   height: 100% !important;
   touch-action: none !important;
+  pointer-events: auto !important;
   -webkit-user-select: none !important;
   -moz-user-select: none !important;
   -ms-user-select: none !important;
   user-select: none !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
 }
 
+/* iOS specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .liquid-ether-container {
+    cursor: pointer;
+  }
+  
+  .liquid-ether-container canvas {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+}
 
+/* Android Chrome fixes */
 @media (hover: none) and (pointer: coarse) {
   .liquid-ether-container {
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   }
   
-
-  .liquid-ether-container::after {
+  /* Povećava osetljivost za touch */
+  .liquid-ether-container::before {
     content: '';
     position: absolute;
-    top: -20px;
-    left: -20px;
-    right: -20px;
-    bottom: -20px;
+    top: -30px;
+    left: -30px;
+    right: -30px;
+    bottom: -30px;
     z-index: -1;
+    pointer-events: none;
   }
 }
 
-
-@supports (-webkit-touch-callout: none) {
-  .liquid-ether-container {
-    cursor: pointer;
-  }
+/* Disable blue highlight on Android */
+.liquid-ether-container * {
+  -webkit-tap-highlight-color: transparent;
 }
