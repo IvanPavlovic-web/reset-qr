@@ -34,14 +34,37 @@ export default function LiquidEther({
   // Dodajemo ref za touch
   const isMobileRef = useRef(false);
   const touchActiveRef = useRef(false);
+  const isSamsungRef = useRef(false);
+  const isSamsungS24Ref = useRef(false);
 
   useEffect(() => {
     if (!mountRef.current) return;
 
-    // Detekcija mobilnog uređaja
-    isMobileRef.current = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
+    // Detekcija mobilnog uređaja - PROŠIRENA ZA SAMSUNG
+    const userAgent = navigator.userAgent.toLowerCase();
+    const vendor = navigator.vendor || '';
+    
+    isMobileRef.current = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+    
+    // Detekcija Samsung uređaja posebno
+    isSamsungRef.current = 
+      /samsung/i.test(userAgent) || 
+      /sm-/i.test(userAgent) || 
+      vendor.toLowerCase().includes('samsung') ||
+      /sec/i.test(userAgent) ||
+      /gt-/i.test(userAgent);
+    
+    // Detekcija Samsung S24 serije
+    isSamsungS24Ref.current = /sm-s92|sm-s91|sm-s90|sm-s928|sm-s918|sm-s908/i.test(userAgent);
+    
+    // Debug log
+    console.log('Device detection:', {
+      isMobile: isMobileRef.current,
+      isSamsung: isSamsungRef.current,
+      isSamsungS24: isSamsungS24Ref.current,
+      userAgent: navigator.userAgent,
+      vendor: navigator.vendor
+    });
 
     function makePaletteTexture(stops) {
       let arr;
@@ -83,6 +106,8 @@ export default function LiquidEther({
         this.aspect = 1;
         this.pixelRatio = 1;
         this.isMobile = false;
+        this.isSamsung = false;
+        this.isSamsungS24 = false;
         this.breakpoint = 768;
         this.fboWidth = null;
         this.fboHeight = null;
@@ -97,21 +122,58 @@ export default function LiquidEther({
         this.container = container;
         this.pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
         this.isMobile = isMobileRef.current;
+        this.isSamsung = isSamsungRef.current;
+        this.isSamsungS24 = isSamsungS24Ref.current;
         this.resize();
         
-        // Kreiranje renderera sa boljim opcijama za mobile
-        this.renderer = new THREE.WebGLRenderer({
+        // Posebne postavke za Samsung
+        const rendererOptions = {
           antialias: true,
           alpha: true,
           powerPreference: 'high-performance',
           preserveDrawingBuffer: false,
-          failIfMajorPerformanceCaveat: false
-        });
+          failIfMajorPerformanceCaveat: false,
+          depth: false,
+          stencil: false
+        };
         
+        // Dodatne optimizacije za Samsung
+        if (this.isSamsung) {
+          console.log('Applying Samsung-specific WebGL settings');
+          rendererOptions.powerPreference = 'default';
+          rendererOptions.failIfMajorPerformanceCaveat = true;
+          rendererOptions.premultipliedAlpha = false;
+          rendererOptions.antialias = false; // Samsung često ima probleme sa antialiasing
+        }
+        
+        if (this.isSamsungS24) {
+          console.log('Applying Samsung S24-specific WebGL settings');
+          rendererOptions.antialias = false;
+          rendererOptions.powerPreference = 'low-power';
+          rendererOptions.preserveDrawingBuffer = true; // Za S24 touch events
+        }
+        
+        this.renderer = new THREE.WebGLRenderer(rendererOptions);
+        
+        // Poseban tretman za Samsung touch events
         this.canvas = this.renderer.domElement;
-        // Dodajemo atribut za touch
-        this.canvas.setAttribute('touch-action', 'none');
-        this.canvas.style.touchAction = 'none';
+        
+        if (this.isSamsung) {
+          // Samsung zahteva posebne atribute za touch
+          this.canvas.setAttribute('touch-action', 'manipulation');
+          this.canvas.style.touchAction = 'manipulation';
+          this.canvas.style.webkitUserDrag = 'none';
+          this.canvas.style.webkitUserSelect = 'none';
+          this.canvas.style.msTouchAction = 'manipulation';
+          this.canvas.style.msUserSelect = 'none';
+          
+          // Samsung često ima probleme sa event bubbling
+          this.canvas.style.pointerEvents = 'all';
+          this.canvas.style.webkitTapHighlightColor = 'transparent';
+        } else {
+          this.canvas.setAttribute('touch-action', 'none');
+          this.canvas.style.touchAction = 'none';
+        }
         
         this.renderer.autoClear = false;
         this.renderer.setClearColor(new THREE.Color(0x000000), 0);
@@ -124,11 +186,12 @@ export default function LiquidEther({
         this.canvas.style.top = "0";
         this.canvas.style.left = "0";
         
-        // Važno za iOS
+        // Važno za iOS i Android
         this.canvas.style.webkitTapHighlightColor = 'transparent';
         this.canvas.style.webkitTouchCallout = 'none';
         this.canvas.style.webkitUserSelect = 'none';
         this.canvas.style.userSelect = 'none';
+        this.canvas.style.outline = 'none';
         
         this.clock = new THREE.Clock();
         this.clock.start();
@@ -171,12 +234,22 @@ export default function LiquidEther({
         this.onInteract = null;
         this.lastTouchTime = 0;
         this.touchMoved = false;
+        this.isSamsung = isSamsungRef.current;
+        this.isSamsungS24 = isSamsungS24Ref.current;
+        
+        // Standard handlers
         this._onMouseMove = this.onDocumentMouseMove.bind(this);
         this._onTouchStart = this.onDocumentTouchStart.bind(this);
         this._onTouchMove = this.onDocumentTouchMove.bind(this);
         this._onTouchEnd = this.onTouchEnd.bind(this);
         this._onDocumentLeave = this.onDocumentLeave.bind(this);
         this._onTouchCancel = this.onTouchCancel.bind(this);
+        
+        // Samsung specific handlers
+        this._onPointerDown = this.onPointerDown.bind(this);
+        this._onPointerMove = this.onPointerMove.bind(this);
+        this._onPointerUp = this.onPointerUp.bind(this);
+        this._onPointerCancel = this.onPointerCancel.bind(this);
       }
       init(container) {
         this.container = container;
@@ -187,19 +260,38 @@ export default function LiquidEther({
         if (!defaultView) return;
         this.listenerTarget = defaultView;
         
-        // Dodajemo event listener direktno na canvas za bolju performance
+        // Dodajemo event listener direktno na canvas
         if (Common.canvas) {
+          // Standardni event listeneri za sve uređaje
           Common.canvas.addEventListener("mousemove", this._onMouseMove);
           Common.canvas.addEventListener("touchstart", this._onTouchStart, { passive: false });
           Common.canvas.addEventListener("touchmove", this._onTouchMove, { passive: false });
           Common.canvas.addEventListener("touchend", this._onTouchEnd, { passive: false });
           Common.canvas.addEventListener("touchcancel", this._onTouchCancel, { passive: false });
+          
+          // Pointer event listeneri posebno za Samsung
+          if (this.isSamsung) {
+            console.log('Adding PointerEvent listeners for Samsung device');
+            Common.canvas.addEventListener("pointerdown", this._onPointerDown, { passive: false });
+            Common.canvas.addEventListener("pointermove", this._onPointerMove, { passive: false });
+            Common.canvas.addEventListener("pointerup", this._onPointerUp, { passive: false });
+            Common.canvas.addEventListener("pointercancel", this._onPointerCancel, { passive: false });
+            Common.canvas.addEventListener("pointerleave", this._onTouchCancel, { passive: false });
+          }
         } else {
+          // Fallback na window ako canvas nije dostupan
           this.listenerTarget.addEventListener("mousemove", this._onMouseMove);
           this.listenerTarget.addEventListener("touchstart", this._onTouchStart, { passive: false });
           this.listenerTarget.addEventListener("touchmove", this._onTouchMove, { passive: false });
           this.listenerTarget.addEventListener("touchend", this._onTouchEnd, { passive: false });
           this.listenerTarget.addEventListener("touchcancel", this._onTouchCancel, { passive: false });
+          
+          if (this.isSamsung) {
+            this.listenerTarget.addEventListener("pointerdown", this._onPointerDown, { passive: false });
+            this.listenerTarget.addEventListener("pointermove", this._onPointerMove, { passive: false });
+            this.listenerTarget.addEventListener("pointerup", this._onPointerUp, { passive: false });
+            this.listenerTarget.addEventListener("pointercancel", this._onPointerCancel, { passive: false });
+          }
         }
         
         if (this.docTarget) {
@@ -213,6 +305,14 @@ export default function LiquidEther({
           Common.canvas.removeEventListener("touchmove", this._onTouchMove);
           Common.canvas.removeEventListener("touchend", this._onTouchEnd);
           Common.canvas.removeEventListener("touchcancel", this._onTouchCancel);
+          
+          if (this.isSamsung) {
+            Common.canvas.removeEventListener("pointerdown", this._onPointerDown);
+            Common.canvas.removeEventListener("pointermove", this._onPointerMove);
+            Common.canvas.removeEventListener("pointerup", this._onPointerUp);
+            Common.canvas.removeEventListener("pointercancel", this._onPointerCancel);
+            Common.canvas.removeEventListener("pointerleave", this._onTouchCancel);
+          }
         }
         if (this.listenerTarget) {
           this.listenerTarget.removeEventListener("mousemove", this._onMouseMove);
@@ -220,6 +320,13 @@ export default function LiquidEther({
           this.listenerTarget.removeEventListener("touchmove", this._onTouchMove);
           this.listenerTarget.removeEventListener("touchend", this._onTouchEnd);
           this.listenerTarget.removeEventListener("touchcancel", this._onTouchCancel);
+          
+          if (this.isSamsung) {
+            this.listenerTarget.removeEventListener("pointerdown", this._onPointerDown);
+            this.listenerTarget.removeEventListener("pointermove", this._onPointerMove);
+            this.listenerTarget.removeEventListener("pointerup", this._onPointerUp);
+            this.listenerTarget.removeEventListener("pointercancel", this._onPointerCancel);
+          }
         }
         if (this.docTarget) {
           this.docTarget.removeEventListener("mouseleave", this._onDocumentLeave);
@@ -310,6 +417,8 @@ export default function LiquidEther({
         if (isMobileRef.current) {
           this.diff.multiplyScalar(1.5);
         }
+        
+        console.log('Touch start:', t.clientX, t.clientY);
       }
       onDocumentTouchMove(event) {
         event.preventDefault();
@@ -341,6 +450,63 @@ export default function LiquidEther({
         touchActiveRef.current = false;
         this.isHoverInside = false;
       }
+      
+      // Samsung PointerEvent handlers
+      onPointerDown(event) {
+        event.preventDefault();
+        touchActiveRef.current = true;
+        
+        const now = Date.now();
+        if (now - this.lastTouchTime < 50) return;
+        this.lastTouchTime = now;
+        
+        if (!this.updateHoverState(event.clientX, event.clientY)) return;
+        if (this.onInteract) this.onInteract();
+        
+        this.touchMoved = false;
+        this.setCoords(event.clientX, event.clientY);
+        this.hasUserControl = true;
+        
+        // Extra boost za Samsung
+        if (this.isSamsung) {
+          this.diff.multiplyScalar(2.0);
+        }
+        
+        console.log('Samsung Pointer down:', event.clientX, event.clientY, event.pointerType);
+      }
+      
+      onPointerMove(event) {
+        event.preventDefault();
+        
+        this.touchMoved = true;
+        
+        if (!this.updateHoverState(event.clientX, event.clientY)) return;
+        if (this.onInteract) this.onInteract();
+        
+        this.setCoords(event.clientX, event.clientY);
+        
+        console.log('Samsung Pointer move:', event.clientX, event.clientY);
+      }
+      
+      onPointerUp(event) {
+        event.preventDefault();
+        touchActiveRef.current = false;
+        this.isHoverInside = false;
+        
+        if (!this.touchMoved) {
+          setTimeout(() => {
+            this.coords.set(0, 0);
+            this.coords_old.set(0, 0);
+          }, 100);
+        }
+      }
+      
+      onPointerCancel(event) {
+        event.preventDefault();
+        touchActiveRef.current = false;
+        this.isHoverInside = false;
+      }
+      
       onDocumentLeave() {
         this.isHoverInside = false;
       }
@@ -451,6 +617,7 @@ export default function LiquidEther({
       }
     }
 
+    // Shader kodovi ostaju isti...
     const face_vert = `
 attribute vec3 position;
 uniform vec2 px;
@@ -1106,16 +1273,26 @@ void main(){
           }
         };
         document.addEventListener("visibilitychange", this._onVisibility);
+        
+        // Force redraw za Samsung
+        if (isSamsungRef.current) {
+          this.forceRedrawInterval = setInterval(() => {
+            if (this.running && Common.renderer && this.output) {
+              this.output.render();
+            }
+          }, 1000 / 30); // 30fps force redraw
+        }
+        
         this.running = false;
       }
       
       adjustForMobile() {
         if (isMobileRef.current) {
           // Podesi optimizovane vrednosti za mobile
-          this.props.mouseForce = this.props.mouseForce * 1.5 || 30;
-          this.props.cursorSize = this.props.cursorSize * 1.3 || 130;
-          this.props.resolution = 0.4; // Niža rezolucija za bolji performance
-          this.props.dt = 0.02; // Veći dt za brži odziv
+          this.props.mouseForce = this.props.mouseForce * (isSamsungRef.current ? 2.0 : 1.5) || 30;
+          this.props.cursorSize = this.props.cursorSize * (isSamsungRef.current ? 1.5 : 1.3) || 130;
+          this.props.resolution = isSamsungS24Ref.current ? 0.3 : 0.4; // Niža rezolucija za bolji performance
+          this.props.dt = isSamsungS24Ref.current ? 0.025 : 0.02; // Veći dt za brži odziv
         }
       }
       
@@ -1160,6 +1337,11 @@ void main(){
         try {
           window.removeEventListener("resize", this._resize);
           document.removeEventListener("visibilitychange", this._onVisibility);
+          
+          if (this.forceRedrawInterval) {
+            clearInterval(this.forceRedrawInterval);
+          }
+          
           Mouse.dispose();
           if (Common.renderer) {
             const canvas = Common.renderer.domElement;
@@ -1168,12 +1350,17 @@ void main(){
             Common.renderer.dispose();
           }
         } catch (e) {
-          void 0;
+          console.error('Error during disposal:', e);
         }
       }
     }
 
     const container = mountRef.current;
+    
+    // Detekcija Samsung uređaja
+    const isSamsungDevice = isSamsungRef.current;
+    
+    // Postavi container stilove
     container.style.position = "fixed";
     container.style.top = "0";
     container.style.left = "0";
@@ -1181,13 +1368,26 @@ void main(){
     container.style.height = "100%";
     container.style.zIndex = "0";
     container.style.pointerEvents = "auto";
-    container.style.touchAction = "none";
+    container.style.touchAction = isSamsungDevice ? "manipulation" : "none";
     container.style.webkitTapHighlightColor = "transparent";
     container.style.webkitTouchCallout = "none";
+    container.style.webkitUserSelect = "none";
+    container.style.userSelect = "none";
     
-    // Dodajemo klasu za mobile
-    if (isMobileRef.current) {
-      container.classList.add("mobile-touch-active");
+    if (isSamsungDevice) {
+      container.classList.add("samsung-device");
+      container.style.webkitTransform = "translateZ(0)";
+      container.style.transform = "translateZ(0)";
+      container.style.backfaceVisibility = "hidden";
+      container.style.webkitBackfaceVisibility = "hidden";
+      container.style.willChange = "transform";
+      
+      console.log('Samsung device detected, applying special fixes');
+    }
+    
+    if (isSamsungS24Ref.current) {
+      container.classList.add("samsung-s24");
+      console.log('Samsung S24 detected, applying S24-specific fixes');
     }
 
     const webgl = new WebGLManager({
@@ -1198,10 +1398,18 @@ void main(){
       takeoverDuration,
       autoResumeDelay,
       autoRampDuration,
-      mouseForce: isMobileRef.current ? mouseForce * 1.5 : mouseForce,
-      cursorSize: isMobileRef.current ? cursorSize * 1.3 : cursorSize,
-      resolution: isMobileRef.current ? 0.4 : resolution,
-      dt: isMobileRef.current ? 0.02 : dt,
+      mouseForce: isMobileRef.current ? 
+        (isSamsungRef.current ? mouseForce * 2.0 : mouseForce * 1.5) : 
+        mouseForce,
+      cursorSize: isMobileRef.current ? 
+        (isSamsungRef.current ? cursorSize * 1.5 : cursorSize * 1.3) : 
+        cursorSize,
+      resolution: isMobileRef.current ? 
+        (isSamsungS24Ref.current ? 0.3 : 0.4) : 
+        resolution,
+      dt: isMobileRef.current ? 
+        (isSamsungS24Ref.current ? 0.025 : 0.02) : 
+        dt,
     });
     webglRef.current = webgl;
 
@@ -1210,19 +1418,27 @@ void main(){
       const sim = webglRef.current.output?.simulation;
       if (!sim) return;
       const prevRes = sim.options.resolution;
+      
+      const mobileMouseForce = isSamsungRef.current ? mouseForce * 2.0 : mouseForce * 1.5;
+      const mobileCursorSize = isSamsungRef.current ? cursorSize * 1.5 : cursorSize * 1.3;
+      const mobileResolution = isSamsungS24Ref.current ? 0.3 : 0.4;
+      const mobileDt = isSamsungS24Ref.current ? 0.025 : 0.02;
+      
       Object.assign(sim.options, {
-        mouse_force: isMobileRef.current ? mouseForce * 1.5 : mouseForce,
-        cursor_size: isMobileRef.current ? cursorSize * 1.3 : cursorSize,
+        mouse_force: isMobileRef.current ? mobileMouseForce : mouseForce,
+        cursor_size: isMobileRef.current ? mobileCursorSize : cursorSize,
         isViscous,
         viscous,
         iterations_viscous: iterationsViscous,
         iterations_poisson: iterationsPoisson,
-        dt: isMobileRef.current ? 0.02 : dt,
+        dt: isMobileRef.current ? mobileDt : dt,
         BFECC,
-        resolution: isMobileRef.current ? 0.4 : resolution,
+        resolution: isMobileRef.current ? mobileResolution : resolution,
         isBounce,
       });
-      if ((isMobileRef.current ? 0.4 : resolution) !== prevRes) {
+      
+      const newRes = isMobileRef.current ? mobileResolution : resolution;
+      if (newRes !== prevRes) {
         sim.resize();
       }
     };
@@ -1264,14 +1480,14 @@ void main(){
         try {
           resizeObserverRef.current.disconnect();
         } catch (e) {
-          void 0;
+          console.error('Error disconnecting resize observer:', e);
         }
       }
       if (intersectionObserverRef.current) {
         try {
           intersectionObserverRef.current.disconnect();
         } catch (e) {
-          void 0;
+          console.error('Error disconnecting intersection observer:', e);
         }
       }
       if (webglRef.current) {
