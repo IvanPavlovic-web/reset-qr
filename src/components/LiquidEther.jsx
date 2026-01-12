@@ -31,7 +31,7 @@ export default function LiquidEther({
   const isVisibleRef = useRef(true);
   const resizeRafRef = useRef(null);
   
-  // Dodajemo ref za pracenje touch interakcije
+  
   const isTouchingRef = useRef(false);
   const lastTouchRef = useRef({ x: 0, y: 0 });
 
@@ -246,7 +246,7 @@ export default function LiquidEther({
         this.hasUserControl = true;
       }
       onDocumentTouchStart(event) {
-        event.preventDefault(); // Dodato: sprečava scroll
+        event.preventDefault();
         if (event.touches.length !== 1) return;
         const t = event.touches[0];
         isTouchingRef.current = true;
@@ -258,7 +258,7 @@ export default function LiquidEther({
         this.hasUserControl = true;
       }
       onDocumentTouchMove(event) {
-        event.preventDefault(); // Dodato: sprečava scroll
+        event.preventDefault();
         if (event.touches.length !== 1) return;
         const t = event.touches[0];
         isTouchingRef.current = true;
@@ -1076,7 +1076,7 @@ void main(){
     container.style.position = container.style.position || "relative";
     container.style.overflow = container.style.overflow || "hidden";
 
-    // Dodajemo CSS klase za touch uredjaje
+    
     container.classList.add("liquid-background");
     if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
       container.classList.add("is-mobile");
