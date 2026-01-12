@@ -6,15 +6,11 @@
 }
 
 body {
-  font-family: "Inter", sans-serif;
+  font-family: "Lobster", serif;
   background: linear-gradient(135deg, #2c1810 0%, #4a2c1f 100%);
   color: #f5e6d3;
   min-height: 100vh;
   overflow-x: hidden;
-}
-
-.serif {
-  font-family: "Playfair Display", serif;
 }
 
 /* App container */
@@ -58,28 +54,14 @@ body {
   font-size: 4rem;
   font-weight: 700;
   color: #d4a574;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
   margin-bottom: 1rem;
 }
 
-.logo-char {
-  display: inline-block;
-  filter: blur(10px);
-  opacity: 0;
-  transform: translateY(-50px);
-}
-
 .tagline {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   color: #c9b199;
-  margin-bottom: 3rem;
-}
-
-.tagline-word {
-  display: inline-block;
-  filter: blur(10px);
-  opacity: 0;
-  transform: translateY(50px);
+  margin-bottom: 2.5rem;
+  font-weight: 300;
 }
 
 /* Dugmad */
@@ -114,6 +96,8 @@ body {
   margin-bottom: 2rem;
   transition: all 0.3s ease;
   font-weight: 500;
+  align-self: flex-start;
+  margin-left: 2rem;
 }
 
 .back-btn:hover {
@@ -129,6 +113,9 @@ body {
   min-height: 100vh;
   padding: 2rem;
   animation: fadeIn 0.5s ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .categories-section,
@@ -142,6 +129,7 @@ body {
   text-align: center;
   margin-bottom: 3rem;
   color: #d4a574;
+  font-family: "Playfair Display", serif;
 }
 
 /* Category Grid */
@@ -149,77 +137,140 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
-  margin-top: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
+/* Category Card */
 .category-card {
-  background: rgba(74, 44, 31, 0.5);
-  border: 2px solid rgba(139, 90, 43, 0.3);
+  height: 320px;
   border-radius: 20px;
-  padding: 2rem;
-  text-align: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.4s ease;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
-.category-card:hover {
-  transform: translateY(-5px);
-  border-color: #8b5a2b;
-  box-shadow: 0 8px 25px rgba(139, 90, 43, 0.3);
-}
-
-.category-icon {
-  width: 100%;
-  height: 150px;
-  background-size: cover;
-  background-position: center;
-  border-radius: 12px;
-  margin-bottom: 1rem;
-  position: relative;
-}
-
-.category-icon::after {
+.category-card::before {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+  width: 100%;
+  height: 100%;
   background: linear-gradient(
     to bottom,
-    rgba(44, 24, 16, 0.3),
-    rgba(44, 24, 16, 0.7)
+    rgba(44, 24, 16, 0.1) 0%,
+    rgba(44, 24, 16, 0.7) 70%,
+    rgba(44, 24, 16, 0.9) 100%
   );
-  border-radius: 12px;
+  z-index: 1;
+  border-radius: 20px;
 }
 
-.coffee-icon {
-  background-image: url("https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80");
+.category-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 15px 40px rgba(139, 90, 43, 0.4);
 }
 
-.hot-icon {
-  background-image: url("https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80");
+.category-card:hover::before {
+  background: linear-gradient(
+    to bottom,
+    rgba(44, 24, 16, 0.05) 0%,
+    rgba(44, 24, 16, 0.6) 70%,
+    rgba(44, 24, 16, 0.85) 100%
+  );
 }
 
-.cold-icon {
-  background-image: url("https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80");
+/* Slika kao pozadina cele kartice */
+.category-card .category-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  border-radius: 20px;
+  transition: transform 0.5s ease;
+  margin-bottom: 0;
 }
 
-.beer-icon {
-  background-image: url("https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80");
+.category-card:hover .category-icon {
+  transform: scale(1.05);
+}
+
+/* Tekst preko slike */
+.category-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2rem;
+  z-index: 2;
+  text-align: left;
 }
 
 .category-title {
-  font-size: 1.8rem;
+  font-size: 2rem;
   color: #d4a574;
   margin-bottom: 0.5rem;
+  font-family: "Lobster", serif;
+  font-weight: 300;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.category-card p {
+  color: #f5e6d3;
+  font-size: 1rem;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+  opacity: 0.9;
+}
+
+/* Specifične slike za kategorije - NOVE SLIKE DODANE */
+.coffee-icon {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+    url("/src/assets/images/kafa.png");
+}
+
+.hot-icon {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+    url("/src/assets/images/topla-cokolada.png");
+}
+
+.cold-icon {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+    url("/src/assets/images/kokteli.png");
+}
+
+.beer-icon {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+    url("/src/assets/images/pivo.png");
+}
+
+.rakija-icon {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+    url("/src/assets/images/rakija.png");
+}
+
+.viski-icon {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+    url("/src/assets/images/viski.png");
+}
+
+.cocktail-icon {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+    url("/src/assets/images/ostalo.png");
 }
 
 /* Menu Items */
 .menu-items {
   margin-top: 2rem;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .menu-item {
@@ -247,6 +298,7 @@ body {
   font-size: 1.3rem;
   color: #d4a574;
   font-weight: 600;
+  font-family: "Playfair Display", serif;
 }
 
 .item-price {
@@ -262,17 +314,6 @@ body {
 }
 
 /* Animacije */
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -299,16 +340,25 @@ body {
     font-size: 3rem;
   }
 
+  .tagline {
+    font-size: 1.2rem;
+  }
+
   .menu-title {
     font-size: 2rem;
   }
 
   .category-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
   }
 
   .category-card {
-    padding: 1.5rem;
+    height: 280px;
+  }
+
+  .category-title {
+    font-size: 1.8rem;
   }
 
   .hero {
@@ -317,6 +367,10 @@ body {
 
   .menu-section {
     padding: 1rem;
+  }
+
+  .back-btn {
+    margin-left: 1rem;
   }
 }
 
@@ -332,5 +386,21 @@ body {
   .menu-btn {
     padding: 0.8rem 1.5rem;
     font-size: 1rem;
+  }
+
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .category-card {
+    height: 250px;
+  }
+
+  .category-title {
+    font-size: 1.6rem;
+  }
+
+  .category-content {
+    padding: 1.5rem;
   }
 }

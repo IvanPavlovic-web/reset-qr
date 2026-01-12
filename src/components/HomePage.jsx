@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import LiquidEther from "./LiquidEther";
 import "../App.css";
 
@@ -6,148 +6,86 @@ export default function HomePage() {
   const [activeSection, setActiveSection] = useState("hero");
   const [menuCategory, setMenuCategory] = useState(null);
 
-  // Menu podaci
+  // Menu podaci - REORGANIZOVANO sa novim kategorijama
   const menuData = {
     kafe: [
-      {
-        name: "Espresso",
-        price: "150 RSD",
-        description: "Klasičan italijanski espresso",
-      },
-      {
-        name: "Cappuccino",
-        price: "200 RSD",
-        description: "Espresso sa penušavim mlekom",
-      },
-      {
-        name: "Latte",
-        price: "220 RSD",
-        description: "Kremasta kafa sa mlekom",
-      },
-      {
-        name: "Americano",
-        price: "180 RSD",
-        description: "Espresso sa toplom vodom",
-      },
-      {
-        name: "Macchiato",
-        price: "190 RSD",
-        description: "Espresso sa kapljom mleka",
-      },
+      { name: "Kafa", price: "2.00 BAM", description: "Kom" },
+      { name: "Ness classic", price: "2.00 BAM", description: "Kom" },
+      { name: "Ness vanilla", price: "2.00 BAM", description: "Kom" },
+      { name: "Ness čokolada", price: "2.00 BAM", description: "Kom" },
+      { name: "Ness Irish", price: "2.00 BAM", description: "Kom" },
+      { name: "Jacobs Milka", price: "2.00 BAM", description: "Kom" },
+      { name: "Čaj", price: "2.00 BAM", description: "Kom" },
     ],
-    topla: [
-      {
-        name: "Crni Čaj",
-        price: "150 RSD",
-        description: "Tradicionalni crni čaj",
-      },
-      {
-        name: "Zeleni Čaj",
-        price: "150 RSD",
-        description: "Osvežavajući zeleni čaj",
-      },
-      {
-        name: "Voćni Čaj",
-        price: "170 RSD",
-        description: "Mešavina voćnih čajeva",
-      },
-      {
-        name: "Topla Čokolada",
-        price: "250 RSD",
-        description: "Bogata topla čokolada sa šlagom",
-      },
+    toplo: [
+      { name: "Čaj", price: "2.00 BAM", description: "Kom" },
+      { name: "Cedevita narandža", price: "2.00 BAM", description: "Kom" },
+      { name: "Cedevita limun", price: "2.00 BAM", description: "Kom" },
     ],
-    hladna: [
-      { name: "Coca Cola", price: "180 RSD", description: "0.33L" },
-      { name: "Fanta", price: "180 RSD", description: "0.33L" },
-      { name: "Sprite", price: "180 RSD", description: "0.33L" },
-      {
-        name: "Ceđeni Sok",
-        price: "220 RSD",
-        description: "Pomorandža ili grejp",
-      },
-      {
-        name: "Ledena Kafa",
-        price: "280 RSD",
-        description: "Hladna kafa sa ledom i mlekom",
-      },
+    hladno: [
+      { name: "Voda Vivia", price: "2.00 BAM", description: "Kom" },
+      { name: "Kisela Vitinka", price: "2.00 BAM", description: "0.25l" },
+      { name: "Kisela narandža", price: "2.50 BAM", description: "0.25l" },
+      { name: "Kisela kruška", price: "2.50 BAM", description: "0.25l" },
+      { name: "Kisela limeta", price: "2.50 BAM", description: "0.25l" },
+      { name: "Vitaminka jabuka", price: "3.00 BAM", description: "0.20l" },
+      { name: "Vitaminka borovnica", price: "3.00 BAM", description: "0.20l" },
+      { name: "Vitaminka višnja", price: "3.00 BAM", description: "0.20l" },
+      { name: "Vitaminka kruška", price: "3.00 BAM", description: "0.20l" },
+      { name: "Vitaminka breskva", price: "3.00 BAM", description: "0.20l" },
+      { name: "Vitaminka jagoda", price: "3.00 BAM", description: "0.20l" },
+      { name: "Vitaminka narandža", price: "3.00 BAM", description: "0.20l" },
+      { name: "Ledeni čaj brusnica", price: "3.00 BAM", description: "0.20l" },
+      { name: "Limunada", price: "2.00 BAM", description: "0.20l" },
+      { name: "Cijeđena narandža", price: "3.00 BAM", description: "0.20l" },
+      { name: "Orangina", price: "3.50 BAM", description: "0.25l" },
+      { name: "Koka kola", price: "3.00 BAM", description: "0.25l" },
+      { name: "Fanta", price: "3.00 BAM", description: "0.25l" },
+      { name: "Šveps tonik", price: "3.00 BAM", description: "0.25l" },
+      { name: "Šveps biter lemon", price: "3.00 BAM", description: "0.25l" },
+      { name: "Šveps mandarina", price: "3.00 BAM", description: "0.25l" },
+      { name: "Kokta", price: "3.00 BAM", description: "0.25l" },
+      { name: "Nektar", price: "3.00 BAM", description: "0.33l" },
+      { name: "Nektar limun", price: "3.50 BAM", description: "0.33l" },
+      { name: "Red Bull", price: "6.00 BAM", description: "0.25l" },
     ],
     piva: [
-      { name: "Lav Premium", price: "200 RSD", description: "0.33L" },
-      { name: "Zaječarsko", price: "180 RSD", description: "0.33L" },
-      { name: "Heineken", price: "250 RSD", description: "0.33L" },
-      { name: "Corona", price: "300 RSD", description: "0.33L" },
-      { name: "Točeno Pivo", price: "220 RSD", description: "0.5L" },
+      { name: "Lav", price: "3.50 BAM", description: "0.33l" },
+      { name: "Hajeken", price: "4.00 BAM", description: "0.33l" },
+      { name: "Korona", price: "6.00 BAM", description: "0.33l" },
+      { name: "Tuborg", price: "3.50 BAM", description: "0.33l" },
+      { name: "Tuborg (veliki)", price: "3.00 BAM", description: "0.50l" },
+      { name: "Carlsberg", price: "3.50 BAM", description: "0.33l" },
+      { name: "Somersby", price: "4.00 BAM", description: "0.33l" },
+      { name: "Bavaria", price: "3.50 BAM", description: "0.25l" },
+    ],
+    rakije: [
+      { name: "Šamar rakija", price: "3.50 BAM", description: "0.03l" },
+      { name: "Baba Višnja", price: "3.00 BAM", description: "0.03l" },
+      { name: "Viljamovka", price: "2.50 BAM", description: "0.03l" },
+      { name: "Gorki list", price: "2.50 BAM", description: "0.03l" },
+      { name: "Rakija dunja", price: "3.00 BAM", description: "0.03l" },
+      { name: "Rakija kajsija", price: "3.00 BAM", description: "0.03l" },
+      { name: "Vinjak", price: "2.50 BAM", description: "0.33l" },
+    ],
+    viski: [
+      { name: "Jameson", price: "4.00 BAM", description: "0.03l" },
+      { name: "Džek", price: "6.00 BAM", description: "0.03l" },
+      { name: "Chivas", price: "5.00 BAM", description: "0.03l" },
+      { name: "Ballantines", price: "4.00 BAM", description: "0.03l" },
+      { name: "Johnnie Walker", price: "4.00 BAM", description: "0.03l" },
+    ],
+    ostalo_alkoholno: [
+      { name: "Konjak", price: "2.50 BAM", description: "0.03l" },
+      { name: "Jeger", price: "3.50 BAM", description: "0.03l" },
+      { name: "Džin", price: "3.00 BAM", description: "0.03l" },
+      { name: "Tekila", price: "3.00 BAM", description: "0.03l" },
+      { name: "Štok", price: "2.50 BAM", description: "0.03l" },
+      { name: "Votka Smirnof", price: "3.00 BAM", description: "0.03l" },
+      { name: "Bijelo vino", price: "3.00 BAM", description: "0.10l" },
+      { name: "Crveno vino", price: "3.00 BAM", description: "0.10l" },
     ],
   };
-
-  // Animacija teksta
-  useEffect(() => {
-    const animateBlurText = (
-      elementId,
-      text,
-      animateBy = "words",
-      delay = 100,
-      direction = "top"
-    ) => {
-      const element = document.getElementById(elementId);
-      if (!element) return;
-
-      const segments = animateBy === "words" ? text.split(" ") : text.split("");
-
-      element.innerHTML = "";
-
-      segments.forEach((segment, index) => {
-        const span = document.createElement("span");
-        span.textContent = segment;
-        span.className = animateBy === "words" ? "tagline-word" : "logo-char";
-        span.style.transitionDelay = `${index * delay}ms`;
-
-        element.appendChild(span);
-
-        if (animateBy === "words" && index < segments.length - 1) {
-          element.appendChild(document.createTextNode(" "));
-        }
-      });
-
-      setTimeout(() => {
-        const spans = element.querySelectorAll("span");
-        spans.forEach((span, index) => {
-          setTimeout(() => {
-            span.style.transition =
-              "all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)";
-
-            span.style.filter = "blur(5px)";
-            span.style.opacity = "0.5";
-            span.style.transform =
-              direction === "top" ? "translateY(5px)" : "translateY(-5px)";
-
-            setTimeout(() => {
-              span.style.filter = "blur(0px)";
-              span.style.opacity = "1";
-              span.style.transform = "translateY(0)";
-            }, 350);
-          }, index * delay);
-        });
-      }, 100);
-    };
-
-    if (activeSection === "hero") {
-      setTimeout(() => {
-        animateBlurText("logo", "Reset", "chars", 100, "top");
-      }, 500);
-
-      setTimeout(() => {
-        animateBlurText(
-          "tagline",
-          "Tvoj trenutak za pauzu",
-          "words",
-          150,
-          "bottom"
-        );
-      }, 800);
-    }
-  }, [activeSection]);
 
   const showCategories = () => {
     setActiveSection("categories");
@@ -164,10 +102,13 @@ export default function HomePage() {
   };
 
   const categoryTitles = {
-    kafe: "Kafe",
-    topla: "Topla Pića",
-    hladna: "Hladna Pića",
+    kafe: "Kafe i Topli Napitci",
+    toplo: "Topli Napitci",
+    hladno: "Bezalkoholna Pića",
     piva: "Piva",
+    rakije: "Rakije",
+    viski: "Viski",
+    ostalo_alkoholno: "Ostalo Alkoholno",
   };
 
   return (
@@ -190,53 +131,80 @@ export default function HomePage() {
       {activeSection === "hero" && (
         <div className="hero">
           <div className="hero-content">
-            <h1 className="logo serif" id="logo"></h1>
-            <p className="tagline" id="tagline"></p>
+            <h1 className="logo">Reset Coffee</h1>
+            <p className="tagline">Dobrodošli u najbolje mjesto za druženje</p>
             <button className="menu-btn" onClick={showCategories}>
-              Pogledaj Meni
+              Pogledaj meni
             </button>
           </div>
         </div>
       )}
 
-      {/* Categories Section */}
+      {/* Categories Section - PROŠIRENO */}
       {activeSection === "categories" && (
         <div className="menu-section categories-section">
           <button className="back-btn" onClick={showHero}>
             ← Nazad
           </button>
-          <h2 className="serif menu-title">Naš Meni</h2>
+          <h2 className="menu-title">Meni</h2>
 
           <div className="category-grid">
             <div className="category-card" onClick={() => showMenu("kafe")}>
               <div className="category-icon coffee-icon"></div>
               <div className="category-content">
-                <h3 className="category-title serif">Kafe</h3>
-                <p>Espresso, Cappuccino i više</p>
+                <h3 className="category-title">Kafe</h3>
+                <p>Espresso, Ness, Jacobs i više</p>
               </div>
             </div>
 
-            <div className="category-card" onClick={() => showMenu("topla")}>
+            <div className="category-card" onClick={() => showMenu("toplo")}>
               <div className="category-icon hot-icon"></div>
               <div className="category-content">
-                <h3 className="category-title serif">Topla Pića</h3>
-                <p>Čajevi i topla čokolada</p>
+                <h3 className="category-title">Topli napitci</h3>
+                <p>Čajevi i Cedevite</p>
               </div>
             </div>
 
-            <div className="category-card" onClick={() => showMenu("hladna")}>
+            <div className="category-card" onClick={() => showMenu("hladno")}>
               <div className="category-icon cold-icon"></div>
               <div className="category-content">
-                <h3 className="category-title serif">Hladna Pića</h3>
-                <p>Sokovi i osveženja</p>
+                <h3 className="category-title">Bezalkoholna pića</h3>
+                <p>Sokovi, kisela voda, osveženja</p>
               </div>
             </div>
 
             <div className="category-card" onClick={() => showMenu("piva")}>
               <div className="category-icon beer-icon"></div>
               <div className="category-content">
-                <h3 className="category-title serif">Piva</h3>
-                <p>Domaća i uvozna piva</p>
+                <h3 className="category-title">Piva</h3>
+                <p>Lokalna i internacionalna piva</p>
+              </div>
+            </div>
+
+            <div className="category-card" onClick={() => showMenu("rakije")}>
+              <div className="category-icon rakija-icon"></div>
+              <div className="category-content">
+                <h3 className="category-title">Rakije</h3>
+                <p>Domaće i voćne rakije</p>
+              </div>
+            </div>
+
+            <div className="category-card" onClick={() => showMenu("viski")}>
+              <div className="category-icon viski-icon"></div>
+              <div className="category-content">
+                <h3 className="category-title">Viski</h3>
+                <p>Irski, škotski, bourbon</p>
+              </div>
+            </div>
+
+            <div
+              className="category-card"
+              onClick={() => showMenu("ostalo_alkoholno")}
+            >
+              <div className="category-icon cocktail-icon"></div>
+              <div className="category-content">
+                <h3 className="category-title">Ostalo alkoholno</h3>
+                <p>Votka, džin, vino, tequila</p>
               </div>
             </div>
           </div>
@@ -252,13 +220,13 @@ export default function HomePage() {
           >
             ← Nazad na kategorije
           </button>
-          <h2 className="serif menu-title">{categoryTitles[menuCategory]}</h2>
+          <h2 className="menu-title">{categoryTitles[menuCategory]}</h2>
 
           <div className="menu-items">
             {menuData[menuCategory].map((item, index) => (
               <div key={index} className="menu-item">
                 <div className="item-header">
-                  <h3 className="item-name serif">{item.name}</h3>
+                  <h3 className="item-name">{item.name}</h3>
                   <span className="item-price">{item.price}</span>
                 </div>
                 <p className="item-description">{item.description}</p>
