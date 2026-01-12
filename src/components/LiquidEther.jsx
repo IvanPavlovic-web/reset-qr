@@ -31,12 +31,17 @@ export default function LiquidEther({
   const isVisibleRef = useRef(true);
   const resizeRafRef = useRef(null);
   
-  
-  const isTouchingRef = useRef(false);
-  const lastTouchRef = useRef({ x: 0, y: 0 });
+  // Dodajemo ref za touch
+  const isMobileRef = useRef(false);
+  const touchActiveRef = useRef(false);
 
   useEffect(() => {
     if (!mountRef.current) return;
+
+    // Detekcija mobilnog uređaja
+    isMobileRef.current = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
 
     function makePaletteTexture(stops) {
       let arr;
@@ -86,22 +91,45 @@ export default function LiquidEther({
         this.container = null;
         this.renderer = null;
         this.clock = null;
+        this.canvas = null;
       }
       init(container) {
         this.container = container;
         this.pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        this.isMobile = isMobileRef.current;
         this.resize();
+        
+        // Kreiranje renderera sa boljim opcijama za mobile
         this.renderer = new THREE.WebGLRenderer({
           antialias: true,
           alpha: true,
+          powerPreference: 'high-performance',
+          preserveDrawingBuffer: false,
+          failIfMajorPerformanceCaveat: false
         });
+        
+        this.canvas = this.renderer.domElement;
+        // Dodajemo atribut za touch
+        this.canvas.setAttribute('touch-action', 'none');
+        this.canvas.style.touchAction = 'none';
+        
         this.renderer.autoClear = false;
         this.renderer.setClearColor(new THREE.Color(0x000000), 0);
         this.renderer.setPixelRatio(this.pixelRatio);
         this.renderer.setSize(this.width, this.height);
-        this.renderer.domElement.style.width = "100%";
-        this.renderer.domElement.style.height = "100%";
-        this.renderer.domElement.style.display = "block";
+        this.canvas.style.width = "100%";
+        this.canvas.style.height = "100%";
+        this.canvas.style.display = "block";
+        this.canvas.style.position = "absolute";
+        this.canvas.style.top = "0";
+        this.canvas.style.left = "0";
+        
+        // Važno za iOS
+        this.canvas.style.webkitTapHighlightColor = 'transparent';
+        this.canvas.style.webkitTouchCallout = 'none';
+        this.canvas.style.webkitUserSelect = 'none';
+        this.canvas.style.userSelect = 'none';
+        
         this.clock = new THREE.Clock();
         this.clock.start();
       }
@@ -141,11 +169,14 @@ export default function LiquidEther({
         this.takeoverFrom = new THREE.Vector2();
         this.takeoverTo = new THREE.Vector2();
         this.onInteract = null;
+        this.lastTouchTime = 0;
+        this.touchMoved = false;
         this._onMouseMove = this.onDocumentMouseMove.bind(this);
         this._onTouchStart = this.onDocumentTouchStart.bind(this);
         this._onTouchMove = this.onDocumentTouchMove.bind(this);
         this._onTouchEnd = this.onTouchEnd.bind(this);
         this._onDocumentLeave = this.onDocumentLeave.bind(this);
+        this._onTouchCancel = this.onTouchCancel.bind(this);
       }
       init(container) {
         this.container = container;
@@ -155,39 +186,43 @@ export default function LiquidEther({
           (typeof window !== "undefined" ? window : null);
         if (!defaultView) return;
         this.listenerTarget = defaultView;
-        this.listenerTarget.addEventListener("mousemove", this._onMouseMove);
-        this.listenerTarget.addEventListener("touchstart", this._onTouchStart, {
-          passive: false, // Promenjeno iz true u false za bolju kontrolu
-        });
-        this.listenerTarget.addEventListener("touchmove", this._onTouchMove, {
-          passive: false, // Promenjeno iz true u false
-        });
-        this.listenerTarget.addEventListener("touchend", this._onTouchEnd);
+        
+        // Dodajemo event listener direktno na canvas za bolju performance
+        if (Common.canvas) {
+          Common.canvas.addEventListener("mousemove", this._onMouseMove);
+          Common.canvas.addEventListener("touchstart", this._onTouchStart, { passive: false });
+          Common.canvas.addEventListener("touchmove", this._onTouchMove, { passive: false });
+          Common.canvas.addEventListener("touchend", this._onTouchEnd, { passive: false });
+          Common.canvas.addEventListener("touchcancel", this._onTouchCancel, { passive: false });
+        } else {
+          this.listenerTarget.addEventListener("mousemove", this._onMouseMove);
+          this.listenerTarget.addEventListener("touchstart", this._onTouchStart, { passive: false });
+          this.listenerTarget.addEventListener("touchmove", this._onTouchMove, { passive: false });
+          this.listenerTarget.addEventListener("touchend", this._onTouchEnd, { passive: false });
+          this.listenerTarget.addEventListener("touchcancel", this._onTouchCancel, { passive: false });
+        }
+        
         if (this.docTarget) {
           this.docTarget.addEventListener("mouseleave", this._onDocumentLeave);
         }
       }
       dispose() {
+        if (Common.canvas) {
+          Common.canvas.removeEventListener("mousemove", this._onMouseMove);
+          Common.canvas.removeEventListener("touchstart", this._onTouchStart);
+          Common.canvas.removeEventListener("touchmove", this._onTouchMove);
+          Common.canvas.removeEventListener("touchend", this._onTouchEnd);
+          Common.canvas.removeEventListener("touchcancel", this._onTouchCancel);
+        }
         if (this.listenerTarget) {
-          this.listenerTarget.removeEventListener(
-            "mousemove",
-            this._onMouseMove
-          );
-          this.listenerTarget.removeEventListener(
-            "touchstart",
-            this._onTouchStart
-          );
-          this.listenerTarget.removeEventListener(
-            "touchmove",
-            this._onTouchMove
-          );
+          this.listenerTarget.removeEventListener("mousemove", this._onMouseMove);
+          this.listenerTarget.removeEventListener("touchstart", this._onTouchStart);
+          this.listenerTarget.removeEventListener("touchmove", this._onTouchMove);
           this.listenerTarget.removeEventListener("touchend", this._onTouchEnd);
+          this.listenerTarget.removeEventListener("touchcancel", this._onTouchCancel);
         }
         if (this.docTarget) {
-          this.docTarget.removeEventListener(
-            "mouseleave",
-            this._onDocumentLeave
-          );
+          this.docTarget.removeEventListener("mouseleave", this._onDocumentLeave);
         }
         this.listenerTarget = null;
         this.docTarget = null;
@@ -213,10 +248,14 @@ export default function LiquidEther({
         if (this.timer) window.clearTimeout(this.timer);
         const rect = this.container.getBoundingClientRect();
         if (rect.width === 0 || rect.height === 0) return;
+        
+        // Normalizujemo koordinate za WebGL (-1 do 1)
         const nx = (x - rect.left) / rect.width;
         const ny = (y - rect.top) / rect.height;
+        
         this.coords.set(nx * 2 - 1, -(ny * 2 - 1));
         this.mouseMoved = true;
+        
         this.timer = window.setTimeout(() => {
           this.mouseMoved = false;
         }, 100);
@@ -226,8 +265,10 @@ export default function LiquidEther({
         this.mouseMoved = true;
       }
       onDocumentMouseMove(event) {
+        event.preventDefault();
         if (!this.updateHoverState(event.clientX, event.clientY)) return;
         if (this.onInteract) this.onInteract();
+        
         if (this.isAutoActive && !this.hasUserControl && !this.takeoverActive) {
           if (!this.container) return;
           const rect = this.container.getBoundingClientRect();
@@ -242,35 +283,62 @@ export default function LiquidEther({
           this.isAutoActive = false;
           return;
         }
+        
         this.setCoords(event.clientX, event.clientY);
         this.hasUserControl = true;
       }
       onDocumentTouchStart(event) {
         event.preventDefault();
+        touchActiveRef.current = true;
+        
         if (event.touches.length !== 1) return;
         const t = event.touches[0];
-        isTouchingRef.current = true;
-        lastTouchRef.current = { x: t.clientX, y: t.clientY };
+        const now = Date.now();
+        
+        // Sprečavamo previše brze tapove
+        if (now - this.lastTouchTime < 50) return;
+        this.lastTouchTime = now;
         
         if (!this.updateHoverState(t.clientX, t.clientY)) return;
         if (this.onInteract) this.onInteract();
+        
+        this.touchMoved = false;
         this.setCoords(t.clientX, t.clientY);
         this.hasUserControl = true;
+        
+        // Povećavamo silu za mobile
+        if (isMobileRef.current) {
+          this.diff.multiplyScalar(1.5);
+        }
       }
       onDocumentTouchMove(event) {
         event.preventDefault();
+        
         if (event.touches.length !== 1) return;
         const t = event.touches[0];
-        isTouchingRef.current = true;
-        lastTouchRef.current = { x: t.clientX, y: t.clientY };
+        this.touchMoved = true;
         
         if (!this.updateHoverState(t.clientX, t.clientY)) return;
         if (this.onInteract) this.onInteract();
+        
         this.setCoords(t.clientX, t.clientY);
       }
       onTouchEnd(event) {
         event.preventDefault();
-        isTouchingRef.current = false;
+        touchActiveRef.current = false;
+        this.isHoverInside = false;
+        
+        // Resetujemo samo ako je bio kratak tap
+        if (!this.touchMoved) {
+          setTimeout(() => {
+            this.coords.set(0, 0);
+            this.coords_old.set(0, 0);
+          }, 100);
+        }
+      }
+      onTouchCancel(event) {
+        event.preventDefault();
+        touchActiveRef.current = false;
         this.isHoverInside = false;
       }
       onDocumentLeave() {
@@ -291,12 +359,21 @@ export default function LiquidEther({
             this.coords.copy(this.takeoverFrom).lerp(this.takeoverTo, k);
           }
         }
+        
         this.diff.subVectors(this.coords, this.coords_old);
         this.coords_old.copy(this.coords);
+        
         if (this.coords_old.x === 0 && this.coords_old.y === 0)
           this.diff.set(0, 0);
-        if (this.isAutoActive && !this.takeoverActive)
-          this.diff.multiplyScalar(this.autoIntensity);
+        
+        // Povećavamo intenzitet za mobile touch
+        if (this.isAutoActive && !this.takeoverActive) {
+          let intensity = this.autoIntensity;
+          if (isMobileRef.current && touchActiveRef.current) {
+            intensity *= 2.0; // Duplo jači efekat na mobile
+          }
+          this.diff.multiplyScalar(intensity);
+        }
       }
     }
     const Mouse = new MouseClass();
@@ -999,20 +1076,27 @@ void main(){
         Mouse.autoIntensity = props.autoIntensity;
         Mouse.takeoverDuration = props.takeoverDuration;
         this.lastUserInteraction = performance.now();
+        
         Mouse.onInteract = () => {
           this.lastUserInteraction = performance.now();
           if (this.autoDriver) this.autoDriver.forceStop();
         };
+        
         this.autoDriver = new AutoDriver(Mouse, this, {
           enabled: props.autoDemo,
           speed: props.autoSpeed,
           resumeDelay: props.autoResumeDelay,
           rampDuration: props.autoRampDuration,
         });
+        
+        // Podesi parametre za mobile
+        this.adjustForMobile();
+        
         this.init();
         this._loop = this.loop.bind(this);
         this._resize = this.resize.bind(this);
         window.addEventListener("resize", this._resize);
+        
         this._onVisibility = () => {
           const hidden = document.hidden;
           if (hidden) {
@@ -1024,30 +1108,46 @@ void main(){
         document.addEventListener("visibilitychange", this._onVisibility);
         this.running = false;
       }
+      
+      adjustForMobile() {
+        if (isMobileRef.current) {
+          // Podesi optimizovane vrednosti za mobile
+          this.props.mouseForce = this.props.mouseForce * 1.5 || 30;
+          this.props.cursorSize = this.props.cursorSize * 1.3 || 130;
+          this.props.resolution = 0.4; // Niža rezolucija za bolji performance
+          this.props.dt = 0.02; // Veći dt za brži odziv
+        }
+      }
+      
       init() {
         this.props.$wrapper.prepend(Common.renderer.domElement);
         this.output = new Output();
       }
+      
       resize() {
         Common.resize();
         this.output.resize();
       }
+      
       render() {
         if (this.autoDriver) this.autoDriver.update();
         Mouse.update();
         Common.update();
         this.output.update();
       }
+      
       loop() {
         if (!this.running) return;
         this.render();
         rafRef.current = requestAnimationFrame(this._loop);
       }
+      
       start() {
         if (this.running) return;
         this.running = true;
         this._loop();
       }
+      
       pause() {
         this.running = false;
         if (rafRef.current) {
@@ -1055,6 +1155,7 @@ void main(){
           rafRef.current = null;
         }
       }
+      
       dispose() {
         try {
           window.removeEventListener("resize", this._resize);
@@ -1073,13 +1174,20 @@ void main(){
     }
 
     const container = mountRef.current;
-    container.style.position = container.style.position || "relative";
-    container.style.overflow = container.style.overflow || "hidden";
-
+    container.style.position = "fixed";
+    container.style.top = "0";
+    container.style.left = "0";
+    container.style.width = "100%";
+    container.style.height = "100%";
+    container.style.zIndex = "0";
+    container.style.pointerEvents = "auto";
+    container.style.touchAction = "none";
+    container.style.webkitTapHighlightColor = "transparent";
+    container.style.webkitTouchCallout = "none";
     
-    container.classList.add("liquid-background");
-    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-      container.classList.add("is-mobile");
+    // Dodajemo klasu za mobile
+    if (isMobileRef.current) {
+      container.classList.add("mobile-touch-active");
     }
 
     const webgl = new WebGLManager({
@@ -1090,6 +1198,10 @@ void main(){
       takeoverDuration,
       autoResumeDelay,
       autoRampDuration,
+      mouseForce: isMobileRef.current ? mouseForce * 1.5 : mouseForce,
+      cursorSize: isMobileRef.current ? cursorSize * 1.3 : cursorSize,
+      resolution: isMobileRef.current ? 0.4 : resolution,
+      dt: isMobileRef.current ? 0.02 : dt,
     });
     webglRef.current = webgl;
 
@@ -1099,18 +1211,18 @@ void main(){
       if (!sim) return;
       const prevRes = sim.options.resolution;
       Object.assign(sim.options, {
-        mouse_force: mouseForce,
-        cursor_size: cursorSize,
+        mouse_force: isMobileRef.current ? mouseForce * 1.5 : mouseForce,
+        cursor_size: isMobileRef.current ? cursorSize * 1.3 : cursorSize,
         isViscous,
         viscous,
         iterations_viscous: iterationsViscous,
         iterations_poisson: iterationsPoisson,
-        dt,
+        dt: isMobileRef.current ? 0.02 : dt,
         BFECC,
-        resolution,
+        resolution: isMobileRef.current ? 0.4 : resolution,
         isBounce,
       });
-      if (resolution !== prevRes) {
+      if ((isMobileRef.current ? 0.4 : resolution) !== prevRes) {
         sim.resize();
       }
     };
