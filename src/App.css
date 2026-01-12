@@ -568,3 +568,54 @@ input, textarea {
   -ms-user-select: text;
   user-select: text;
 }
+/* Samsung specific fixes - dodaj na kraj postojećeg App.css fajla */
+
+/* Samsung device specific optimizations */
+.samsung-device .app-container {
+  -webkit-tap-highlight-color: rgba(139, 90, 43, 0.1) !important;
+  tap-highlight-color: rgba(139, 90, 43, 0.1) !important;
+}
+
+.samsung-device .liquid-background {
+  touch-action: manipulation !important;
+  -ms-touch-action: manipulation !important;
+  pointer-events: all !important;
+}
+
+.samsung-device .menu-btn,
+.samsung-device .back-btn {
+  min-height: 48px !important;
+  min-width: 48px !important;
+  padding: 14px 28px !important;
+}
+
+.samsung-device .category-card {
+  -webkit-tap-highlight-color: rgba(139, 90, 43, 0.15) !important;
+  tap-highlight-color: rgba(139, 90, 43, 0.15) !important;
+}
+
+/* Samsung S24 Ultra specific */
+@media screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) {
+  .samsung-device .liquid-background {
+    transform: translateZ(0) !important;
+    -webkit-transform: translateZ(0) !important;
+    will-change: transform !important;
+  }
+  
+  .samsung-device .menu-btn {
+    font-size: 1.2rem !important;
+    padding: 16px 32px !important;
+  }
+}
+
+/* Prevent touch delay on Samsung */
+.samsung-device * {
+  touch-action: manipulation !important;
+}
+
+/* Fix for Samsung Internet Browser */
+@supports (-webkit-touch-callout: none) {
+  .samsung-device .liquid-background {
+    cursor: pointer !important;
+  }
+}
