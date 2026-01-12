@@ -1,6 +1,6 @@
 # Reset Coffee – QR Digital Menu
 
-![Reset Coffee Cover](https://images.unsplash.com/photo-1554118811-1e0d58224f24?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80)
+![Reset Coffee Cover](https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwUUQnsUZbk01F2uFOV4V6__VZwszsAEdgJ8T7I2p1fon_ye_HBuCY2RzhLfeupHVz7bwRmAXd7_TTASTzfnojqQam1et3UMxXkhVgq7x1PBeKi8pL37-0TrOJBGfTnPzLFxruRNw=s680-w680-h510-rw)
 
 Reset Coffee is a modern web application built for cafés and bars that allows customers to view the menu by scanning a QR code. The menu opens directly in the browser, providing a fast, clean, and simple alternative to traditional physical menus.
 
