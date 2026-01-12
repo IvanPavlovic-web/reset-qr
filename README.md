@@ -1,16 +1,69 @@
-# React + Vite
+# Reset Coffee – QR Digital Menu
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![Reset Coffee Cover](https://images.unsplash.com/photo-1554118811-1e0d58224f24?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80)
 
-Currently, two official plugins are available:
+Reset Coffee is a modern web application built for cafés and bars that allows customers to view the menu by scanning a QR code. The menu opens directly in the browser, providing a fast, clean, and simple alternative to traditional physical menus.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## React Compiler
+- **QR Code Access**  
+  Customers scan a code to open the menu instantly—no app downloads required.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Organized Menu**  
+  Items are clearly displayed by categories (e.g., Coffee, Tea, Pastries).
 
-## Expanding the ESLint configuration
+- **Mobile-First Design**  
+  Fully responsive and optimized for smartphones and tablets.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **Fast & Lightweight**  
+  Built with React and Vite for a smooth, quick-loading experience.
+
+- **Clean UI**  
+  Intuitive and user-friendly interface designed for easy browsing.
+
+## 🚀 Live Demo & QR Code
+
+The application is deployed and ready to use. Scan the QR code below with your phone's camera or click the link to view the live menu.
+
+**Live URL:**  
+https://ivanpavlovic-web.github.io/reset-qr/
+
+![QR Code](https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://ivanpavlovic-web.github.io/reset-qr/)
+
+Scan this code to open the menu.
+
+## 📸 Screenshots
+
+### Main Menu View
+
+![Main Menu](https://images.unsplash.com/photo-1559925393-8be0ec4767c8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1471&q=80)
+
+The main menu interface, showcasing different drink categories.
+
+### Mobile View
+
+![Mobile View](https://images.unsplash.com/photo-1561047029-3000c68339ca?ixlib=rb-4.0.3&auto=format&fit=crop&w=987&q=80)
+
+The responsive design ensures a perfect experience on any device.
+
+## 🛠️ Tech Stack
+
+- **React** – Building the interactive user interface  
+- **Vite** – Fast build tool and development server  
+- **JavaScript (ES6+)** – Core programming language  
+- **CSS** – Styling and responsive layout  
+
+## 📖 Getting Started
+
+### Prerequisites
+
+- Node.js (version 16 or higher recommended)
+- npm (usually comes with Node.js)
+
+### Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/IvanPavlovic-web/reset-qr.git
+cd reset-qr
