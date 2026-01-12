@@ -1,10 +1,52 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LiquidEther from "./LiquidEther";
 import "../App.css";
 
 export default function HomePage() {
   const [activeSection, setActiveSection] = useState("hero");
   const [menuCategory, setMenuCategory] = useState(null);
+  const [isSamsung, setIsSamsung] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [deviceOptimized, setDeviceOptimized] = useState(false);
+
+  useEffect(() => {
+    // Detekcija uređaja
+    const userAgent = navigator.userAgent.toLowerCase();
+    const vendor = navigator.vendor || "";
+    
+    // Detekcija mobilnog uređaja
+    const mobileCheck = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+    setIsMobile(mobileCheck);
+    
+    // Detekcija Samsung uređaja posebno
+    const samsungCheck = 
+      /samsung/i.test(userAgent) || 
+      /sm-/i.test(userAgent) || 
+      vendor.toLowerCase().includes('samsung') ||
+      /sec/i.test(userAgent) ||
+      /gt-/i.test(userAgent);
+    
+    setIsSamsung(samsungCheck);
+    setDeviceOptimized(true);
+    
+    // Dodaj klase za CSS optimizacije
+    if (samsungCheck) {
+      document.body.classList.add("samsung-device");
+      document.documentElement.classList.add("samsung-device");
+      console.log("Samsung device detected, applying optimizations");
+    }
+    
+    if (mobileCheck) {
+      document.body.classList.add("mobile-device");
+      document.documentElement.classList.add("mobile-device");
+    }
+    
+    // Cleanup
+    return () => {
+      document.body.classList.remove("samsung-device", "mobile-device");
+      document.documentElement.classList.remove("samsung-device", "mobile-device");
+    };
+  }, []);
 
   // Menu podaci - REORGANIZOVANO sa novim kategorijama
   const menuData = {
@@ -111,19 +153,75 @@ export default function HomePage() {
     ostalo_alkoholno: "Ostalo Alkoholno",
   };
 
+  // Optimizovani parametri za LiquidEther
+  const getLiquidEtherProps = () => {
+    if (!deviceOptimized) {
+      return {
+        colors: ["#8b5a2b", "#d4a574", "#a67c52"],
+        mouseForce: 15,
+        cursorSize: 80,
+        resolution: 0.7,
+        autoDemo: true,
+        autoSpeed: 0.3,
+      };
+    }
+    
+    if (isSamsung) {
+      // Samsung optimizacije
+      return {
+        colors: ["#8b5a2b", "#d4a574", "#a67c52"],
+        mouseForce: 35,
+        cursorSize: 150,
+        resolution: 0.35,
+        dt: 0.025,
+        autoDemo: true,
+        autoSpeed: 0.3,
+        autoIntensity: 3.0,
+        takeoverDuration: 0.25,
+        autoResumeDelay: 1500,
+        autoRampDuration: 0.6,
+        BFECC: true,
+        isViscous: false,
+        viscous: 30,
+        iterationsViscous: 32,
+        iterationsPoisson: 32,
+        isBounce: false,
+      };
+    } else if (isMobile) {
+      // Ostali mobilni uređaji
+      return {
+        colors: ["#8b5a2b", "#d4a574", "#a67c52"],
+        mouseForce: 25,
+        cursorSize: 120,
+        resolution: 0.4,
+        dt: 0.02,
+        autoDemo: true,
+        autoSpeed: 0.3,
+        autoIntensity: 2.5,
+        takeoverDuration: 0.25,
+        autoResumeDelay: 1500,
+        autoRampDuration: 0.6,
+      };
+    } else {
+      // Desktop
+      return {
+        colors: ["#8b5a2b", "#d4a574", "#a67c52"],
+        mouseForce: 15,
+        cursorSize: 80,
+        resolution: 0.7,
+        autoDemo: true,
+        autoSpeed: 0.3,
+        autoIntensity: 2.2,
+      };
+    }
+  };
+
   return (
-    <div className="app-container">
+    <div className={`app-container ${isSamsung ? 'samsung-device' : ''} ${isMobile ? 'mobile-device' : ''}`}>
       {/* Liquid Ether Background samo na hero sekciji */}
       {activeSection === "hero" && (
         <div className="liquid-background">
-          <LiquidEther
-            colors={["#8b5a2b", "#d4a574", "#a67c52"]}
-            mouseForce={15}
-            cursorSize={80}
-            resolution={0.7}
-            autoDemo={true}
-            autoSpeed={0.3}
-          />
+          <LiquidEther {...getLiquidEtherProps()} />
         </div>
       )}
 
