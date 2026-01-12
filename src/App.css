@@ -10,7 +10,7 @@ body {
   background: linear-gradient(135deg, #2c1810 0%, #4a2c1f 100%);
   color: #f5e6d3;
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 /* App container */
