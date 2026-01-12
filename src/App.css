@@ -11,12 +11,16 @@ body {
   color: #f5e6d3;
   min-height: 100vh;
   overflow: hidden;
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none !important;
+  user-select: none !important;
 }
 
 /* App container */
 .app-container {
   position: relative;
   min-height: 100vh;
+  overflow: hidden;
 }
 
 /* Liquid background - IZMENJENO ZA TOUCH SUPPORT */
@@ -27,9 +31,15 @@ body {
   width: 100%;
   height: 100%;
   z-index: 0;
-  pointer-events: auto; /* PROMENJENO: none -> auto za touch support */
-  touch-action: none; /* Dodato: sprečava scroll dok se dodiruje fluid */
-  -webkit-tap-highlight-color: transparent; /* Dodato: uklanja plavi highlight */
+  pointer-events: auto !important; /* PROMENJENO: none -> auto za touch support */
+  touch-action: none !important; /* Dodato: sprečava scroll dok se dodiruje fluid */
+  -webkit-tap-highlight-color: transparent !important; /* Dodato: uklanja plavi highlight */
+}
+
+/* Samsung specific touch fix */
+.samsung-device .liquid-background {
+  touch-action: manipulation !important; /* Samsung zahteva manipulation */
+  -ms-touch-action: manipulation !important;
 }
 
 /* Hero Section */
@@ -81,6 +91,9 @@ body {
   animation: fadeInUp 1s ease-out 0.6s both;
   position: relative;
   z-index: 2;
+  -webkit-tap-highlight-color: rgba(139, 90, 43, 0.3) !important;
+  min-height: 44px; /* Better touch target */
+  min-width: 44px;
 }
 
 .menu-btn:hover {
@@ -100,6 +113,9 @@ body {
   font-weight: 500;
   align-self: flex-start;
   margin-left: 2rem;
+  -webkit-tap-highlight-color: rgba(139, 90, 43, 0.2) !important;
+  min-height: 44px;
+  min-width: 44px;
 }
 
 .back-btn:hover {
@@ -153,6 +169,7 @@ body {
   position: relative;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1) !important;
 }
 
 .category-card::before {
@@ -426,8 +443,8 @@ body {
   
   /* Povećaj touch target za dugmad na mobilnim */
   .menu-btn, .back-btn {
-    min-height: 44px; /* Apple HIG preporuka */
-    min-width: 44px;
+    min-height: 48px; /* Apple HIG preporuka */
+    min-width: 48px;
     padding: 12px 24px;
   }
   
@@ -474,4 +491,80 @@ body {
   height: 100% !important;
   touch-action: none !important;
   pointer-events: auto !important;
+}
+
+/* Samsung specific fixes */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .samsung-device .liquid-background,
+  .samsung-device .liquid-ether-container {
+    -webkit-transform: translate3d(0,0,0);
+    transform: translate3d(0,0,0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000;
+    -webkit-perspective: 1000;
+  }
+  
+  .samsung-device .liquid-background canvas,
+  .samsung-device .liquid-ether-container canvas {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Samsung S24 Ultra specific fixes */
+@media screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) {
+  .liquid-background {
+    /* Force GPU acceleration */
+    transform: translateZ(0) !important;
+    -webkit-transform: translateZ(0) !important;
+    will-change: transform !important;
+  }
+  
+  .liquid-ether-container canvas {
+    /* Reduce resolution for S24 performance */
+    max-width: 100% !important;
+    max-height: 100% !important;
+    image-rendering: pixelated !important;
+  }
+}
+
+/* Samsung One UI touch optimizations */
+.samsung-device {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.05) !important;
+  tap-highlight-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.samsung-device .liquid-background {
+  touch-action: manipulation !important;
+  -ms-touch-action: manipulation !important;
+}
+
+/* Fix for Samsung's broken touch event capturing */
+.samsung-device .liquid-ether-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* Prevent text selection globally */
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection only where needed */
+input, textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
