@@ -1,7 +1,52 @@
+
 .liquid-ether-container {
-  position: relative;
-  overflow: hidden;
+  position: fixed !important;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  touch-action: none;
+  z-index: 0;
+  pointer-events: auto !important;
+  touch-action: none !important;
+}
+
+.liquid-ether-container.is-mobile {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+.liquid-ether-container canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  touch-action: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+}
+
+
+@media (hover: none) and (pointer: coarse) {
+  .liquid-ether-container {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  }
+  
+
+  .liquid-ether-container::after {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    z-index: -1;
+  }
+}
+
+
+@supports (-webkit-touch-callout: none) {
+  .liquid-ether-container {
+    cursor: pointer;
+  }
 }
