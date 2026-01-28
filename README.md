@@ -2,29 +2,19 @@
 
 Reset Coffee is a modern web application built for cafés and bars that allows customers to view the menu by scanning a QR code. The menu opens directly in the browser, providing a fast, clean, and simple alternative to traditional physical menus.
 
+![Screenshot](513_1x_shots_so.png)
+
 ## Features
 
-- **QR Code Access**  
-  Customers scan a code to open the menu instantly—no app downloads required.
-
-- **Organized Menu**  
-  Items are clearly displayed by categories (e.g., Coffee, Tea, Pastries).
-
-- **Mobile-First Design**  
-  Fully responsive and optimized for smartphones and tablets.
-
-- **Fast & Lightweight**  
-  Built with React and Vite for a smooth, quick-loading experience.
-
-- **Clean UI**  
-  Intuitive and user-friendly interface designed for easy browsing.
+- **QR Code Access** – Open menu instantly, no app needed  
+- **Organized Menu** – Categories: Coffee, Tea, Pastries  
+- **Mobile-First** – Optimized for smartphones and tablets  
+- **Fast & Lightweight** – Built with React + Vite  
+- **Clean UI** – Simple, intuitive interface  
 
 ## Live Demo & QR Code
 
 The application is deployed and ready to use. Scan the QR code below with your phone's camera or click the link to view the live menu.
-
-**Live URL:**  
-https://ivanpavlovic-web.github.io/reset-qr/
 
 ![QR Code](https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://ivanpavlovic-web.github.io/reset-qr/)
 
@@ -36,8 +26,6 @@ Scan this code to open the menu.
 - **Vite** – Fast build tool and development server  
 - **JavaScript (ES6+)** – Core programming language  
 - **CSS** – Styling and responsive layout  
-
-## Getting Started
 
 ### Prerequisites
 
@@ -78,6 +66,7 @@ reset-qr/
 │   └── main.jsx
 ├── public/
 │   └── index.html
+```
 ├── package.json
 ├── vite.config.js
 └── README.md
